@@ -10,8 +10,8 @@ class Dojo():
         self.training_ratio = training_ratio
         self.generator = build_generator()
         self.discriminator = build_discriminator()
-        self.optimizer_geneator = AdamOptimizer(1e-4, beta1=0.5)
-        self.optimizer_discriminator = AdamOptimizer(1e-4, beta1=0.5)
+        self.optimizer_geneator = AdamOptimizer(1e-4, beta1=0.5, beta2=0.9)
+        self.optimizer_discriminator = AdamOptimizer(1e-4, beta1=0.5, beta2=0.9)
 
     def train_on_batch(self, steps, images):
         loss_d, loss_g = None, None
