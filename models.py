@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.layers import BatchNormalization, LeakyReLU, Flatten, Reshape
-from tensorflow.keras.layers import Dense, Conv2D, Conv2DTranspose
+from tensorflow.keras.layers import Dense, Conv2D, Conv2DTranspose, Lambda
 
 def build_generator(input_dim=512) -> Model:
     model = Sequential()
@@ -25,17 +25,23 @@ def build_generator(input_dim=512) -> Model:
 
     return model
 
-def build_discriminator() -> Model:
+def build_discriminator(extra_conv2d=False) -> Model:
     model = Sequential()
 
-    model.add(Conv2D(64, 1, strides=1, padding='same', input_shape=(64, 64, 3)))
+    model.add(Conv2D(32, 1, strides=1, padding='same', input_shape=(64, 64, 3)))
+    model.add(Lambda(tf.contrib.layers.layer_norm))
     model.add(LeakyReLU())
 
     # 32, 16, 8, 4
     for i in range(4):
-        output_channels = min(64 * 2**(i + 1), 512)
-        model.add(Conv2D(output_channels, 3, strides=2, padding='same'))
+        output_channels = min(32 * 2**(i + 1), 512)
+        model.add(Conv2D(output_channels, 3, strides=1, padding='same'))
+        model.add(Lambda(tf.contrib.layers.layer_norm))
         model.add(LeakyReLU())
+        if extra_conv2d:
+            model.add(Conv2D(output_channels, 3, strides=2, padding='same'))
+            model.add(Lambda(tf.contrib.layers.layer_norm))
+            model.add(LeakyReLU())
     
     model.add(Flatten())
     model.add(Dense(1))

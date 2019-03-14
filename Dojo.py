@@ -6,10 +6,10 @@ from models import build_discriminator, build_generator
 
 class Dojo():
 
-    def __init__(self, training_ratio=5):
+    def __init__(self, training_ratio=5, generator_fn=build_generator, discriminator_fn=build_discriminator):
         self.training_ratio = training_ratio
-        self.generator = build_generator()
-        self.discriminator = build_discriminator()
+        self.generator = generator_fn()
+        self.discriminator = discriminator_fn()
         self.optimizer_geneator = AdamOptimizer(1e-4, beta1=0.5, beta2=0.9)
         self.optimizer_discriminator = AdamOptimizer(1e-4, beta1=0.5, beta2=0.9)
 
@@ -55,7 +55,7 @@ def wasserstein_gp_loss(logits_generated, logits_real, generated, real, discrimi
     interpolates = real + (alpha * differences)
     with tf.GradientTape() as tape:
         tape.watch(interpolates)
-        logits_interpolates = discriminator(interpolates, training=True)
+        logits_interpolates = discriminator(interpolates, training=False)
 
     gradients = tape.gradient(logits_interpolates, interpolates)[0]
     slopes = K.sqrt(K.sum(K.square(gradients), axis=[1]))
