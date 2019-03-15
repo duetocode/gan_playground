@@ -11,7 +11,7 @@ def build_generator(input_dim=512, batch_size=16):
 
     styles = Dense(4 * 4 * 3, use_bias=False)(inputs)
     styles = Reshape([4, 4, 3])(styles)
-    outputs = SeedLayer(batch_size)(styles)
+    outputs = SeedLayer()(styles)
     
     # 8|256, 16|128, 32|64, 64|32
     for i in range(4):
@@ -29,10 +29,6 @@ def build_generator(input_dim=512, batch_size=16):
     return keras.Model(inputs, outputs)
 
 class SeedLayer(keras.layers.Layer):
-
-    def __init__(self, batch_size, **kwargs):
-        self.batch_size = batch_size
-        super(SeedLayer, self).__init__(*kwargs)
     
     def build(self, input_shape):
         self.seed = self.add_weight('seed',
