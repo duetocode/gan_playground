@@ -9,8 +9,8 @@ from models import build_discriminator
 def build_generator(input_dim=512, batch_size=16):
     inputs = Input(shape=[input_dim], batch_size=batch_size)
 
-    styles = Dense(4 * 4 * 3, use_bias=False)(inputs)
-    styles = Reshape([4, 4, 3])(styles)
+    styles = Dense(4 * 4 * 512, use_bias=False)(inputs)
+    styles = Reshape([4, 4, 512])(styles)
     outputs = SeedLayer()(styles)
     
     # 8|256, 16|128, 32|64, 64|32
@@ -32,13 +32,13 @@ class SeedLayer(keras.layers.Layer):
     
     def build(self, input_shape):
         self.seed = self.add_weight('seed',
-                                        shape=[1, 4, 4, 3],
+                                        shape=[1, 4, 4, 512],
                                         initializer='uniform',
                                         trainable=True)
         super(SeedLayer, self).build(input_shape)
     
     def call(self, x):
-        seed_expanded = K.ones([K.shape(x)[0], 4, 4, 3]) * self.seed
+        seed_expanded = K.ones([K.shape(x)[0], 4, 4, 512]) * self.seed
         return K.concatenate([seed_expanded, x], axis=-1)
 
     def compute_output_shape(self, **kwargs):
